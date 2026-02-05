@@ -1,0 +1,119 @@
+
+# ============================================================================
+# QWEN-OPTIMIZED CPG QUERY PROMPTS (Concise for local models)
+# ============================================================================
+
+def build_query_prompt(code: str, vulnerability: str, is_vulnerable: bool) -> str:
+    """Build a concise prompt optimized for local LLMs like Qwen."""
+    
+    status = "VULNERABLE" if is_vulnerable else "SECURE"
+    
+    # Simple sink patterns for common vulnerabilities
+    sink_patterns = {
+        "SQL Injection": ("executeQuery", "execute", "prepareStatement"),
+        "Command Injection": ("exec", "start", "ProcessBuilder"),
+        "Path Traversal": ("File", "resolve", "FileInputStream"),
+        "Broken Access Control": ("findById", "getById", "load"),
+        "Insecure Deserialization": ("readObject", "XMLDecoder"),
+        "XXE (XML External Entity)": ("parse", "SAXParser"),
+        "Log Injection": ("info", "debug", "warn", "error", "println"),
+        "Open Redirect": ("sendRedirect", "forward"),
+    }
+    
+    sinks = sink_patterns.get(vulnerability, ("call",))
+    sink_example = sinks[0]
+    
+    if is_vulnerable:
+        # For vulnerable code: query must find the vulnerability
+        prompt = f"""Write a Joern CPG query to detect {vulnerability} in this VULNERABLE Java code.
+
+CODE:
+{code}
+
+RULES:
+- Query must return NON-EMPTY results (vulnerability exists)
+- Use cpg.call.name("{sink_example}") as starting point
+- NO .p or .l at end
+- Output ONLY the query, nothing else
+
+EXAMPLES:
+cpg.call.name("findById")
+cpg.call.name("executeQuery").where(_.argument.code(".*\\\\+.*"))
+cpg.call.name("{sink_example}").reachableByFlows(cpg.parameter)
+
+QUERY:"""
+    else:
+        # For secure code: query must return empty (security checks exist)
+        prompt = f"""Write a Joern CPG query for {vulnerability} that returns EMPTY for this SECURE Java code.
+
+CODE:
+{code}
+
+RULES:
+- Query must return EMPTY [] (code has security checks)
+- Use whereNot() to exclude secure patterns
+- NO .p or .l at end
+- Output ONLY the query, nothing else
+
+EXAMPLES:
+cpg.call.name("findById").whereNot(_.method.ast.isCall.name(".*check.*"))
+cpg.call.name("resolve").whereNot(_.method.ast.isCall.name("startsWith"))
+
+QUERY:"""
+
+    return prompt
+
+
+def build_retry_prompt(original_query: str, error_type: str, code: str, vulnerability: str, is_vulnerable: bool) -> str:
+    """Build a concise retry prompt for local LLMs."""
+    
+    if error_type == "execution_failed":
+        prompt = f"""Previous query had syntax error:
+{original_query}
+
+Fix the query. Common fixes:
+- Use cpg.call not cpg.calls
+- Remove .p or .l
+- Check parentheses
+
+CODE:
+{code}
+
+FIXED QUERY:"""
+
+    elif error_type == "false_negative":
+        prompt = f"""Query returned [] but code IS VULNERABLE to {vulnerability}:
+{original_query}
+
+Make query less strict to catch the vulnerability.
+Try: cpg.call.name("...") without complex filters
+
+CODE:
+{code}
+
+FIXED QUERY:"""
+
+    elif error_type == "false_positive":
+        prompt = f"""Query found results but code is SECURE against {vulnerability}:
+{original_query}
+
+Add whereNot() to exclude security checks.
+Example: .whereNot(_.method.ast.isCall.name(".*check.*|.*validate.*"))
+
+CODE:
+{code}
+
+FIXED QUERY:"""
+
+    else:
+        prompt = f"""Query produced invalid output:
+{original_query}
+
+Rewrite a simple valid query.
+
+CODE:
+{code}
+
+FIXED QUERY:"""
+
+    return prompt

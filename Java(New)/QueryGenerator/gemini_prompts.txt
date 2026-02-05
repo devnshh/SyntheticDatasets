@@ -1,0 +1,176 @@
+# ============================================================================
+# EXPERT CPG QUERY GENERATION PROMPTS (GEMINI VERSION - BACKUP)
+# ============================================================================
+# These prompts were optimized for Gemini and achieved 75% success rate.
+# To restore: copy contents back to main.py replacing the prompt section.
+
+SYSTEM_PROMPT = """You are an expert Joern Code Property Graph (CPG) query engineer specializing in security vulnerability detection.
+
+Your expertise includes:
+- Deep understanding of Joern's Scala-based query DSL
+- Data flow analysis using reachableBy and reachableByFlows
+- Taint tracking from sources (user inputs) to sinks (dangerous functions)
+- Pattern matching for security anti-patterns
+- Understanding of Java security vulnerabilities (OWASP Top 10)
+
+CRITICAL RULES:
+1. Output ONLY the raw Joern query - no markdown, no code blocks, no explanations
+2. Never end queries with .p, .l, or .toList - return the raw traversal
+3. Queries must be syntactically valid Scala that Joern can execute
+4. Use proper CPG node types: cpg.call, cpg.method, cpg.parameter, cpg.identifier, cpg.literal
+5. For data flow: use reachableByFlows(source) to find paths from source to current node
+6. Use .filter(), .where(), .whereNot() for conditional matching
+7. Use .name(), .code(), .methodFullName() for pattern matching"""
+
+
+# Vulnerability-specific hints dictionary:
+vuln_hints = {
+    "SQL Injection": """
+- Look for: string concatenation with SQL keywords, PreparedStatement misuse
+- Sources: request parameters, user input methods
+- Sinks: executeQuery, executeUpdate, execute, prepareStatement with string concat
+- Secure patterns: PreparedStatement with parameterized queries (? placeholders)
+- Query pattern: cpg.call.name("executeQuery").where(_.argument.code(".*\\+.*"))""",
+    
+    "Command Injection": """
+- Look for: Runtime.exec(), ProcessBuilder with user input
+- Sources: request parameters, user-controlled strings
+- Sinks: exec(), start(), ProcessBuilder constructor
+- Secure patterns: allowlist validation, no shell=true, parameterized commands
+- Query pattern: cpg.call.methodFullName(".*Runtime.exec.*").argument""",
+    
+    "Path Traversal": """
+- Look for: File operations with user-controlled paths
+- Sources: request parameters, user-provided filenames
+- Sinks: new File(), Paths.get(), FileInputStream, readFile operations
+- Secure patterns: canonicalization + startsWith check, path normalization
+- Query pattern: cpg.call.name("resolve").reachableByFlows(cpg.parameter)""",
+    
+    "Broken Access Control": """
+- Look for: resource access without authorization checks
+- Sources: user IDs, resource IDs from parameters
+- Sinks: database queries, file access, API calls
+- Secure patterns: role checks, ownership validation before access
+- Query pattern: cpg.call.name("findById").whereNot(_.method.ast.isCall.name(".*check.*|.*authorize.*"))""",
+    
+    "Insecure Deserialization": """
+- Look for: ObjectInputStream.readObject() on untrusted data
+- Sources: network streams, file streams from user input
+- Sinks: readObject(), XMLDecoder.readObject()
+- Secure patterns: allowlist of classes, avoiding native deserialization
+- Query pattern: cpg.call.name("readObject").reachableByFlows(cpg.parameter)""",
+    
+    "XXE (XML External Entity)": """
+- Look for: XML parsers without secure configuration
+- Sources: XML input from users, external XML files
+- Sinks: DocumentBuilder.parse(), SAXParser.parse()
+- Secure patterns: setFeature to disable external entities
+- Query pattern: cpg.call.name("parse").whereNot(_.method.ast.isCall.name("setFeature"))""",
+    
+    "Log Injection": """
+- Look for: logging user input without sanitization
+- Sources: request parameters, user input
+- Sinks: logger.info(), log.debug(), System.out.println()
+- Secure patterns: sanitizing newlines, encoding user input
+- Query pattern: cpg.call.name("info|debug|warn|error").argument.reachableByFlows(cpg.parameter)""",
+    
+    "Open Redirect": """
+- Look for: redirect/forward with user-controlled URLs
+- Sources: request parameters containing URLs
+- Sinks: response.sendRedirect(), RequestDispatcher.forward()
+- Secure patterns: allowlist validation, relative URLs only
+- Query pattern: cpg.call.name("sendRedirect").argument.reachableByFlows(cpg.parameter)""",
+    
+    "TOCTOU (Time-of-check to Time-of-use)": """
+- Look for: security checks separated from resource usage
+- Pattern: file.exists() followed by file.read() without synchronization
+- Secure patterns: atomic operations, proper locking
+- Query pattern: cpg.call.name("exists").method.ast.isCall.name("read|write|delete")"""
+}
+
+
+# MAIN PROMPT TEMPLATE:
+prompt_template = """
+{SYSTEM_PROMPT}
+
+================================================================================
+TASK: Generate a Joern CPG query to analyze the following Java code for {vulnerability}
+================================================================================
+
+CODE STATUS: {status}
+{goal}
+
+VULNERABILITY TYPE: {vulnerability}
+{specific_hints}
+
+================================================================================
+JAVA CODE TO ANALYZE:
+================================================================================
+{code}
+================================================================================
+
+QUERY REQUIREMENTS:
+1. The query must be a single valid Joern Scala expression
+2. Do NOT use .p, .l, .toList, or print statements
+3. Use cpg.call, cpg.method, cpg.parameter, etc. appropriately
+4. For data flow analysis, use reachableByFlows() or reachableBy()
+5. For negative matching (secure code), use whereNot() or filter with negation
+
+EXAMPLE PATTERNS:
+- Find calls: cpg.call.name("dangerousMethod")
+- Data flow: cpg.call.name("sink").reachableByFlows(cpg.parameter.name("userInput"))
+- With filter: cpg.call.name("execute").where(_.argument.code(".*\\\\+.*"))
+- Negative: cpg.call.name("resolve").whereNot(_.method.ast.isCall.name("startsWith"))
+
+OUTPUT ONLY THE RAW QUERY (no markdown, no explanation):
+"""
+
+
+# RETRY PROMPT TEMPLATES:
+
+retry_execution_failed = """
+The previous query failed to execute in Joern (syntax error or invalid API usage).
+
+FAILED QUERY:
+{original_query}
+
+COMMON ISSUES TO FIX:
+- Invalid method names (use cpg.call not cpg.calls)
+- Missing parentheses or brackets
+- Using .p or other formatting methods (remove them)
+- Incorrect chaining syntax
+
+Please rewrite a VALID query.
+"""
+
+retry_false_negative = """
+The previous query returned EMPTY results [], but the code IS VULNERABLE.
+Your query failed to detect the vulnerability.
+
+FAILED QUERY:
+{original_query}
+
+ISSUES TO FIX:
+- Query may be too specific (loosen method name matching)
+- May need to check different sink/source patterns
+- Try using reachableByFlows for data flow instead of just structural matching
+- Use wildcard patterns: methodFullName(".*dangerous.*")
+
+Write a more SENSITIVE query that catches the vulnerability.
+"""
+
+retry_false_positive = """
+The previous query found results, but the code is BENIGN (has security controls).
+Your query produced a FALSE POSITIVE.
+
+FAILED QUERY:
+{original_query}
+
+ISSUES TO FIX:
+- Query needs to recognize security patterns (validation, sanitization)
+- Use whereNot() to exclude secure patterns
+- Look for: try-catch, validation methods, allowlist checks
+- Add negative conditions: whereNot(_.method.ast.isCall.name("validate|sanitize|check"))
+
+Write a more SPECIFIC query that excludes secure code patterns.
+"""

@@ -1,0 +1,1 @@
+python3 query_gen.py --backend lmstudio --workers 1 --tokens 2000 --target 1000 --per-vuln 55 --balance 0.5

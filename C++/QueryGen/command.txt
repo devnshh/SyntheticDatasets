@@ -1,0 +1,16 @@
+# C++ Query Generator Commands
+
+# Basic usage with LM Studio (requires LM Studio running at localhost:1234)
+python3 query_gen.py --backend=lmstudio --target=100 --input=input_data.json
+
+# Use Gemini backend (requires GOOGLE_API_KEY in .env)
+python3 query_gen.py --backend=gemini --target=100
+
+# Parallel processing with 4 workers
+python3 query_gen.py --backend=lmstudio --workers=4 --target=200
+
+# Custom limits per vulnerability type
+python3 query_gen.py --backend=lmstudio --target=100 --per_vuln=15 --balance=0.5
+
+# Full generation with custom model
+python3 query_gen.py --backend=lmstudio --model="deepseek/deepseek-coder-v2" --target=500 --tokens=8192

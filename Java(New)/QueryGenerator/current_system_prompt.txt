@@ -1,0 +1,276 @@
+# CPG Query Generation System Prompts
+# =====================================
+# These prompts are used by main.py to generate Joern CPGQL queries
+# for detecting Java security vulnerabilities.
+
+# ============================================================================
+# JAVA VULNERABILITY PATTERNS
+# ============================================================================
+# These patterns define sources, sinks, secure patterns, and fallback queries
+# for each supported vulnerability type.
+
+JAVA_VULNERABILITY_PATTERNS = {
+    "SQL Injection": {
+        "sources": ["getParameter", "nextLine", "readLine", "getQueryString", "getInputStream"],
+        "sinks": ["executeQuery", "executeUpdate", "execute", "createStatement"],
+        "secure_patterns": ["setString", "setInt", "setLong", "PreparedStatement", "prepareStatement"],
+        "indicators": ["Statement", "+", "concat", "String.format"],
+        "fallback_query": 'cpg.call.name("executeQuery|executeUpdate|execute").where(_.argument.code(".*\\\\+.*"))',
+        "examples": [
+            'cpg.call.name("executeQuery").where(_.argument.code(".*\\\\+.*"))',
+            'cpg.call.name("createStatement").method.ast.isCall.name("executeQuery")'
+        ]
+    },
+    "Command Injection": {
+        "sources": ["getParameter", "nextLine", "readLine", "Scanner", "System.in"],
+        "sinks": ["exec", "start", "ProcessBuilder", "Runtime.exec"],
+        "secure_patterns": ["ProcessBuilder.*--", "allowlist", "whitelist", "validate"],
+        "indicators": ["exec", "ProcessBuilder", "bash", "cmd", "sh"],
+        "fallback_query": 'cpg.call.name("exec|start").reachableByFlows(cpg.call.name("getParameter|nextLine"))',
+        "examples": [
+            'cpg.call.name("start").where(_.argument.reachableBy(cpg.call.name("nextLine")))',
+            'cpg.call.methodFullName(".*Runtime.exec.*").argument'
+        ]
+    },
+    "Path Traversal": {
+        "sources": ["getParameter", "request.getParameter", "args"],
+        "sinks": ["File", "FileInputStream", "FileOutputStream", "Paths.get", "resolve", "readAllBytes"],
+        "secure_patterns": ["startsWith", "normalize", "toRealPath", "canonicalize", "getCanonicalPath"],
+        "indicators": ["File", "Path", "Paths", "FileInputStream"],
+        "fallback_query": 'cpg.call.name("<init>").where(_.typeFullName(".*File.*")).argument',
+        "examples": [
+            'cpg.call.name("resolve").whereNot(_.method.ast.isCall.name("startsWith"))',
+            'cpg.call.name("<init>").where(_.typeFullName("java.io.File"))'
+        ]
+    },
+    "Broken Access Control": {
+        "sources": ["getParameter", "getAttribute", "getUserId", "getSession"],
+        "sinks": ["findById", "getById", "load", "query", "get"],
+        "secure_patterns": ["authorize", "checkPermission", "isAuthorized", "hasRole", "canAccess"],
+        "indicators": ["repository", "dao", "service", "findBy"],
+        "fallback_query": 'cpg.call.name("findById|getById|load").whereNot(_.method.ast.isCall.name(".*check.*|.*authorize.*"))',
+        "examples": [
+            'cpg.call.name("findById").whereNot(_.method.ast.isCall.name("authorize"))',
+            'cpg.method.name(".*get.*").parameter.whereNot(_.method.ast.isCall.name("check"))'
+        ]
+    },
+    "Insecure Deserialization": {
+        "sources": ["getInputStream", "FileInputStream", "ByteArrayInputStream", "ObjectInputStream"],
+        "sinks": ["readObject", "readUnshared", "XMLDecoder"],
+        "secure_patterns": ["ValidatingObjectInputStream", "resolveClass", "allowlist", "ObjectInputFilter"],
+        "indicators": ["ObjectInputStream", "readObject", "Serializable"],
+        "fallback_query": 'cpg.call.name("readObject").whereNot(_.method.ast.isCall.name("resolveClass"))',
+        "examples": [
+            'cpg.call.name("readObject")',
+            'cpg.call.name("<init>").where(_.typeFullName(".*ObjectInputStream.*"))'
+        ]
+    },
+    "XXE (XML External Entity)": {
+        "sources": ["getInputStream", "parse", "DocumentBuilder"],
+        "sinks": ["parse", "newDocumentBuilder", "SAXParser.parse"],
+        "secure_patterns": ["setFeature", "FEATURE_SECURE_PROCESSING", "setExpandEntityReferences"],
+        "indicators": ["DocumentBuilderFactory", "SAXParser", "XMLReader", "parse"],
+        "fallback_query": 'cpg.call.name("parse").whereNot(_.method.ast.isCall.name("setFeature"))',
+        "examples": [
+            'cpg.call.name("parse").whereNot(_.method.ast.isCall.name("setFeature"))',
+            'cpg.call.name("newDocumentBuilder")'
+        ]
+    },
+    "Log Injection": {
+        "sources": ["getParameter", "nextLine", "readLine", "request.getParameter"],
+        "sinks": ["info", "debug", "warn", "error", "log", "println", "severe"],
+        "secure_patterns": ["sanitize", "escape", "encode", "replace", "matches"],
+        "indicators": ["logger", "log", "Logger", "println"],
+        "fallback_query": 'cpg.call.name("info|debug|warn|error|severe").argument.reachableByFlows(cpg.call.name("getParameter"))',
+        "examples": [
+            'cpg.call.name("info").where(_.argument.reachableBy(cpg.parameter))',
+            'cpg.call.name("println").argument'
+        ]
+    },
+    "Open Redirect": {
+        "sources": ["getParameter", "request.getParameter", "getAttribute"],
+        "sinks": ["sendRedirect", "forward", "setHeader.*Location"],
+        "secure_patterns": ["allowlist", "whitelist", "startsWith", "contains", "ALLOWED"],
+        "indicators": ["redirect", "sendRedirect", "forward", "Location"],
+        "fallback_query": 'cpg.call.name("sendRedirect").argument.reachableByFlows(cpg.call.name("getParameter"))',
+        "examples": [
+            'cpg.call.name("sendRedirect").whereNot(_.method.ast.isCall.name(".*valid.*|.*allowed.*"))',
+            'cpg.call.name("sendRedirect").argument'
+        ]
+    },
+    "TOCTOU (Time-of-check to Time-of-use)": {
+        "sources": ["exists", "canRead", "canWrite", "isFile", "isDirectory"],
+        "sinks": ["createNewFile", "delete", "read", "write", "mkdir"],
+        "secure_patterns": ["synchronized", "lock", "atomic", "Files.move"],
+        "indicators": ["exists", "canWrite", "Thread.sleep", "wait"],
+        "fallback_query": 'cpg.call.name("exists|canWrite").method.ast.isCall.name("createNewFile|delete|write")',
+        "examples": [
+            'cpg.call.name("exists").method.ast.isCall.name("createNewFile")',
+            'cpg.call.name("canWrite").method.ast.isCall.name("write")'
+        ]
+    }
+}
+
+
+# ============================================================================
+# MAIN QUERY GENERATION PROMPT
+# ============================================================================
+# This is the primary prompt template used to generate CPG queries.
+
+MAIN_PROMPT_TEMPLATE = """
+Generate a Joern CPGQL query to detect {vulnerability} in Java code.
+
+CODE STATUS: {status}
+{goal}
+
+JAVA CODE:
+{code}
+
+VULNERABILITY PATTERNS for {vulnerability}:
+- Sources (user input): {sources}
+- Sinks (dangerous operations): {sinks}
+- Secure patterns to exclude: {secure_patterns}
+
+WORKING QUERY EXAMPLES:
+{examples}
+
+CRITICAL RULES:
+1. Output ONLY valid JSON with a "queries" array
+2. Queries must be syntactically valid Scala
+3. Do NOT use .p, .l, or .toList at the end
+4. Use cpg.call.name() not cpg.call() or cpg.methodName()
+5. Last query should use reachableByFlows for taint analysis
+
+EXPECTED OUTPUT FORMAT:
+```json
+{
+  "queries": [
+    "val sources = cpg.call.name(\"{source_list}\").argument.l",
+    "val sinks = cpg.call.name(\"{sink_list}\").argument.l",
+    "sinks.reachableByFlows(sources).l"
+  ]
+}
+```
+"""
+
+# Goal strings based on vulnerability status:
+GOAL_VULNERABLE = """Your query MUST return NON-EMPTY results because this code IS vulnerable.
+Focus on finding the taint flow from source to sink WITHOUT security checks."""
+
+GOAL_SECURE = """Your query MUST return EMPTY [] because this code has security controls.
+Use whereNot() to exclude paths that have sanitization/validation."""
+
+
+# ============================================================================
+# RETRY PROMPT TEMPLATES
+# ============================================================================
+# These templates are used when the initial query fails.
+
+RETRY_PROMPT_TEMPLATE = """
+RETRY ATTEMPT {attempt}: Previous query failed.
+
+ERROR TYPE: {error_type}
+{guidance}
+
+PREVIOUS RESPONSE (FAILED):
+{previous_response}...
+
+CODE TO ANALYZE:
+{code}...
+
+VULNERABILITY: {vulnerability}
+STATUS: {status_message}
+
+OUTPUT VALID JSON:
+"""
+
+# Error-specific guidance messages:
+
+ERROR_EXECUTION_FAILED = """The query had SYNTAX ERRORS and failed to execute in Joern.
+
+COMMON FIXES:
+- Use cpg.call.name() not cpg.call() or cpg.methodName()
+- Remove .p, .l, or .toList from end
+- Check balanced parentheses and quotes
+- Use double backslashes in regex: \\\\ not \\
+
+SIMPLE WORKING PATTERN:
+{fallback_query}"""
+
+ERROR_FALSE_NEGATIVE = """The query returned [] but the code IS VULNERABLE.
+Your query was TOO STRICT and missed the vulnerability.
+
+FIX: Make the query LESS restrictive:
+- Remove complex filters
+- Use broader method name patterns
+- Try a simpler data flow query
+
+SIMPLER APPROACH:
+{fallback_query}"""
+
+ERROR_FALSE_POSITIVE = """The query found results but the code is SECURE.
+Your query produced a FALSE POSITIVE.
+
+FIX: Add whereNot() to exclude security patterns:
+- .whereNot(_.method.ast.isCall.name(".*{secure_pattern}.*"))
+
+EXAMPLE:
+{fallback_query}.whereNot(_.method.ast.isCall.name(".*validate.*|.*sanitize.*"))"""
+
+ERROR_INVALID_FORMAT = """Could not parse your response as JSON.
+
+OUTPUT MUST BE VALID JSON:
+```json
+{
+  "queries": ["query1", "query2", "query3"]
+}
+```"""
+
+ERROR_INVALID_JSON_JOERN = """Joern returned invalid JSON output.
+Your query syntax may be incorrect or the query structure is wrong.
+
+ENSURE:
+- Queries end with .l to materialize results
+- No print statements in queries
+- Valid Scala syntax"""
+
+
+# ============================================================================
+# QUERY VALIDATION RULES
+# ============================================================================
+# These rules are checked before executing a query in Joern.
+
+VALIDATION_RULES = {
+    "forbidden_endings": [".p", ".l", ".toList"],
+    "invalid_patterns": [
+        (".methodName(", "Use .name() instead of .methodName()"),
+        (".calls(", "Use .call (singular) instead of .calls"),
+        (".methods(", "Use .method (singular) instead of .methods"),
+        ("cpg.call(", "Use cpg.call.name() not cpg.call()"),
+    ],
+    "require_balanced": ["()", '""']
+}
+
+
+# ============================================================================
+# USAGE NOTES
+# ============================================================================
+#
+# 1. The main prompt uses the JAVA_VULNERABILITY_PATTERNS dictionary to
+#    provide context-specific guidance for each vulnerability type.
+#
+# 2. For VULNERABLE code, queries should return NON-EMPTY results.
+#    For SECURE code, queries should return EMPTY [].
+#
+# 3. The retry prompts are selected based on the error type:
+#    - execution_failed: Syntax errors in the query
+#    - false_negative: Query returned [] but code is vulnerable
+#    - false_positive: Query found results but code is secure
+#    - invalid_format: Response was not valid JSON
+#    - invalid_json_joern: Joern output was not valid JSON
+#
+# 4. After 3 failed attempts, the fallback_query from the patterns
+#    dictionary is suggested as a proven working query.
+#
+# 5. Queries are pre-validated before execution to catch common syntax
+#    errors like unbalanced parentheses or forbidden endings.

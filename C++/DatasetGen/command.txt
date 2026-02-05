@@ -1,0 +1,10 @@
+# C++ Dataset Generator
+
+# Example: Generate 2 vulnerability types with 5 vulnerable and 5 benign samples each
+python3 generate_dataset.py --vuln_variants=2 --vuln_samples=5 --safe_samples=5
+
+# Generate all 10 vulnerability types with 10 samples each
+python3 generate_dataset.py --vuln_variants=10 --vuln_samples=10 --safe_samples=10 --output=full_dataset.json
+
+# Increase token limit for complex code generation
+python3 generate_dataset.py --vuln_variants=5 --vuln_samples=3 --safe_samples=3 --tokens=16384

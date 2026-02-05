@@ -1,0 +1,6 @@
+aiofiles
+google-generativeai
+cpgqls-client
+websockets
+psutil
+python-dotenv
