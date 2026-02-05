@@ -23,8 +23,8 @@ from typing import Optional, Tuple, Dict, List
 
 # ===== CONFIGURATION =====
 NUM_WORKERS = 4
-MAX_RETRIES = 5
-JOERN_TIMEOUT = 120
+MAX_RETRIES = 3
+JOERN_TIMEOUT = 60
 DEFAULT_MAX_TOKENS = 4096
 
 # API Configuration
@@ -497,33 +497,49 @@ EXPECTED OUTPUT FORMAT:
 
 def build_retry_prompt(previous_response: str, error_type: str, code: str, 
                        vulnerability: str, is_vulnerable: bool, attempt: int) -> str:
-    """Build retry prompt based on error type."""
+    """Build retry prompt based on error type with enhanced feedback."""
     status = "VULNERABLE" if is_vulnerable else "BENIGN"
+    analysis = analyze_code_patterns(code, vulnerability)
     
+    found_sinks = analysis.get("found_sinks", [])
+    found_sources = analysis.get("found_sources", [])
+    
+    feedback = ""
     if error_type == "false_negative":
-        hint = f"""The query returned empty [] but this code IS VULNERABLE to {vulnerability}.
-Make the query MORE SENSITIVE to find the vulnerability.
-Look for:
-- Direct taint flow from user input to dangerous sinks
-- String concatenation or formatting in security-sensitive operations
-- Missing input validation before dangerous operations"""
+        feedback = f"""The query failed to find the vulnerability.
+ANALYSIS:
+- This code IS VULNERABLE to {vulnerability}.
+- Actual sinks found in code: {', '.join(found_sinks) if found_sinks else 'None (check for indirect calls)'}
+- Actual sources found in code: {', '.join(found_sources) if found_sources else 'None (likely Function Parameters)'}
+
+SUGGESTION:
+1. Ensure you are tracking flow from the correct source to the correct sink.
+2. If sinks are present, try a simpler query first: cpg.call.name("{'|'.join(found_sinks)}")...
+3. If source is a parameter, use reachableBy(cpg.parameter)."""
     
     elif error_type == "false_positive":
-        hint = f"""The query found results but this code is BENIGN (properly secured).
-Make the query MORE SPECIFIC to the vulnerability pattern.
-Use .whereNot() to filter out:
-- Proper bounds checking
-- Input validation
-- Secure API usage (strncpy, snprintf, etc.)"""
+        feedback = f"""The query incorrectly flagged benign code.
+ANALYSIS:
+- This code is SECURE/BENIGN.
+- You must make the query STRICTER to exclude this pattern.
+
+SUGGESTION:
+1. Use .whereNot(...) to exclude the detailed secure pattern.
+2. Check for validation logic (e.g., checks on size, length, or specific values)."""
     
     elif error_type == "execution_failed":
-        hint = """The query failed to execute. Fix the syntax:
-- Use cpg.call.name("method") not cpg.method
-- Ensure all parentheses are balanced
-- Use valid Scala/CPGQL syntax"""
+        feedback = """The query failed to execute in Joern.
+COMMON ISSUES:
+1. Invalid syntax (e.g., missing parenthesis).
+2. Using invalid steps (e.g., .p which is forbidden).
+3. Incorrect property names.
+
+SUGGESTION:
+- Use standard steps: .call, .name, .argument, .reachableBy, .refsTo
+- Verify all parentheses match."""
     
     else:
-        hint = "Please provide valid JSON with a 'queries' array."
+        feedback = "Please provide valid JSON with a 'queries' array."
     
     return f"""Your previous query attempt failed.
 
@@ -531,7 +547,7 @@ ERROR TYPE: {error_type}
 CODE STATUS: {status}
 ATTEMPT: {attempt}/{MAX_RETRIES}
 
-{hint}
+{feedback}
 
 C++ CODE:
 ```cpp
