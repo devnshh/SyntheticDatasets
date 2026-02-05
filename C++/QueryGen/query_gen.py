@@ -753,8 +753,7 @@ try {{
     with open(script_path, 'w') as f:
         f.write(script_content)
     
-    # DEBUG: Print script content
-    logger.info(f"\n--- DEBUG: Script Content ({script_path}) ---\n{script_content}\n---------------------------------------------")
+
 
     # Run Joern
     try:
