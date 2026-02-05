@@ -1,62 +1,32 @@
 [
   {
     "instruction": "Write a Joern CPG query to detect Buffer Overflow.",
+    "input": "#include <cstring>\n#include <iostream>\n\nclass TriageSystem {\npublic:\n    void fqycywgkep(const char* record) {\n        char lncamgfw[10];\n        strcpy(lncamgfw, record);  \n        std::cout << \"Processed: _mod\" << lncamgfw << std::endl;\n    }\n}",
+    "output": "```json\n{\n  \"queries\": [\"cpg.call.name(\\\"strcpy|strcat|sprintf\\\").where(_.argument(1).isIdentifier.refsTo.collectAll[Local].typeFullName(\\\".*\\\\\\\\[.*\\\\\\\\]\\\")).where(_.argument(2).reachableBy(cpg.parameter)).l\"]\n}\n```"
+  },
+  {
+    "instruction": "Write a Joern CPG query to detect Buffer Overflow.",
     "input": "#include <cstring>\n#include <iostream>\n\nclass MarketDataIngestionSystem {\npublic:\n    void processData(const char* data) {\n        char buffer[100];\n        strcpy(buffer, data); \n        handleIngestedData(buffer);\n    }\nprivate:\n    void handleIngestedData(const char* data) {\n        std::cout << \"Processed: \" << data << std::endl;\n    }\n}",
-    "output": "```json\n{\n  \"queries\": [\"val sources = cpg.call.name(\\\"strcpy\\\").argument.l\", \"val sinks = cpg.call.name(\\\"strcpy\\\").argument.l\", \"sinks.reachableByFlows(sources).l\"]\n}\n```"
+    "output": "```json\n{\n  \"queries\": [\"cpg.call.name(\\\"strcpy|strcat|sprintf\\\").where(_.argument(1).isIdentifier.refsTo.collectAll[Local].typeFullName(\\\".*\\\\\\\\[.*\\\\\\\\]\\\")).where(_.argument(2).reachableBy(cpg.parameter)).l\"]\n}\n```"
   },
   {
     "instruction": "Write a Joern CPG query to detect Buffer Overflow.",
-    "input": "#include <cstring>\n#include <iostream>\n\nclass StockClearingHouseServer {\npublic:\n    void processMarketData(char* data) {\n        char buffer[1024];\n        strcpy(buffer, \"Processing market data: \");\n        strcat(buffer, data); \n        std::cout << buffer << std::endl;\n    }\n}",
-    "output": "```json\n{\n  \"queries\": ['cpg.call(\"strcpy|strcat|sprintf\").where(_.argument(1).isIdentifier.refsTo.collectAll[Local].typeFullName(\".*\\\\\\\\[.*\\\\\\\\]\")).where(_.argument(2).reachableBy(cpg.parameter)).l']\n}\n```"
+    "input": "#include <cstring>\n\nclass VideoStreamProcessor {\npublic:\n    static VideoStreamProcessor* createInstance(const char* configPath) {\n        return new VideoStreamProcessor(configPath);\n    }\n    void processFrame(const char* frameData) {\n        std::memcpy(buffer, frameData, sizeof(char) * 300); \n    }\nprivate:\n    char buffer[256];\n    VideoStreamProcessor(const char* configPath) {\n        std::strncpy(configBuffer, configPath, sizeof(configBuffer) - 1);\n        configBuffer[sizeof(configBuffer) - 1] = '\\0';\n    }\n    char configBuffer[512];\n}",
+    "output": "```json\n{\n  \"queries\": [\"val sources = cpg.call.argument.l\", \"val sinks = cpg.call.name(\\\"memcpy\\\").argument.l\", \"sinks.reachableByFlows(sources).l\"]\n}\n```"
   },
   {
     "instruction": "Write a Joern CPG query to detect Buffer Overflow.",
-    "input": "#include <cstring>\n#include <iostream>\n\nclass AutonomousVehicleTelemetryParser {\npublic:\n    void parseAndProcessData(const char* incomingData, int dataLength) {\n        char buffer[64];\n        std::strncpy(buffer, incomingData, 64);\n        std::memcpy(buffer + 64, incomingData, dataLength - 64); \n        processData(buffer);\n    }\nprivate:\n    void processData(const char* data) {\n        std::cout << \"Processing telemetry data: \" << data << std::endl;\n    }\n}",
-    "output": "```json\n{\n  \"queries\": [\"val sources = cpg.call.name(\\\"strncpy|memcpy\\\").argument.l\", \"val sinks = cpg.call.name(\\\"processData\\\").argument.l\", \"sinks.reachableByFlows(sources).l\"]\n}\n```"
+    "input": "#include <cstring>\n#include <iostream>\n\nclass MarketDataHandler {\npublic:\n    void processMarketData(const char* data) {\n        if (data == nullptr) {\n            std::cerr << \"Error: Null data provided\" << std::endl;\n            return;\n        }\n        char buffer[1024];\n        strcpy(buffer, data);  \n    }\n}",
+    "output": "```json\n{\n  \"queries\": [\"cpg.call.name(\\\"strcpy|strcat|sprintf\\\").where(_.argument(1).isIdentifier.refsTo.collectAll[Local].typeFullName(\\\".*\\\\\\\\[.*\\\\\\\\]\\\")).where(_.argument(2).reachableBy(cpg.parameter)).l\"]\n}\n```"
   },
   {
     "instruction": "Write a Joern CPG query to detect Buffer Overflow.",
-    "input": "#include <cstring>\n#include <iostream>\n\nclass FlightBooker {\npublic:\n    void bookFlight(const char* passengerName, const char* destination) {\n        char buffer[32];\n        if (strcpy(buffer, passengerName) != nullptr && strcpy(buffer, destination) != nullptr) {\n            std::cout << \"Flight booked for \" << passengerName << \" to \" << destination << std::endl;\n        }\n    }\nprivate:\n    bool validateDestination(const char* dest) {\n        return (strcmp(dest, \"New York\") == 0 || strcmp(dest, \"Los Angeles\") == 0);\n    }\n}",
-    "output": "```json\n{\n  \"queries\": [\"val sources = cpg.call.name(\\\"strcpy\\\").argument.l\", \"val sinks = cpg.call.name(\\\"strcpy\\\").argument.l\", \"sinks.reachableByFlows(sources).l\"]\n}\n```"
-  },
-  {
-    "instruction": "Write a Joern CPG query to detect Buffer Overflow.",
-    "input": "#include <cstring>\n#include <iostream>\n\nclass StockClearingHouseService {\npublic:\n   StockClearingHouseService() : name(nullptr) {}\n    void setName(const char* newName) {\n        if (name != nullptr) {\n            delete[] name;\n        }\n        name = new char[strlen(newName) + 1];\n        strcpy(name, newName); \n    }\n    void printName() const {\n        if (name != nullptr) {\n            std::cout << \"Service Name: \" << name << std::endl;\n        } else {\n            std::cout << \"No service name set.\" << std::endl;\n        }\n    }\n    ~StockClearingHouseService() {\n        delete[] name;\n    }\nprivate:\n    char* name;\n}",
-    "output": "```json\n{\n  \"queries\": [\"val sources = cpg.call.name(\\\"strcpy\\\").argument.l\", \"val sinks = cpg.call.name(\\\"strcpy\\\").argument.l\", \"sinks.reachableByFlows(sources).l\"]\n}\n```"
-  },
-  {
-    "instruction": "Write a Joern CPG query to detect Buffer Overflow.",
-    "input": "#include <cstring>\n#include <iostream>\n\nclass StockClearingHouseServer {\npublic:\n    void processMarketData(char* data) {\n        char buffer[1024];\n        strcpy(buffer, \"Processing market data: \");\n        strcat(buffer, data); \n        std::cout << buffer << std::endl;\n    }\n}",
-    "output": "```json\n{\n  \"queries\": [\"cpg.call(\\\"strcpy|strcat|sprintf\\\").where(_.argument(1).isIdentifier.refsTo.collectAll[Local].typeFullName(\\\".*\\\\\\\\[.*\\\\\\\\]\\\")).where(_.argument(2).reachableBy(cpg.parameter)).l\"]\n}\n```"
-  },
-  {
-    "instruction": "Write a Joern CPG query to detect Buffer Overflow.",
-    "input": "#include <cstring>\n#include <iostream>\n\nclass FlightBooker {\npublic:\n    void bookFlight(const char* passengerName, const char* destination) {\n        char buffer[32];\n        if (strcpy(buffer, passengerName) != nullptr && strcpy(buffer, destination) != nullptr) {\n            std::cout << \"Flight booked for \" << passengerName << \" to \" << destination << std::endl;\n        }\n    }\nprivate:\n    bool validateDestination(const char* dest) {\n        return (strcmp(dest, \"New York\") == 0 || strcmp(dest, \"Los Angeles\") == 0);\n    }\n}",
-    "output": "```json\n{\n  \"queries\": [\"val sources = cpg.call.name(\\\"strcpy|strcat|sprintf\\\").argument.l\", \"val sinks = cpg.call.name(\\\"strcpy|strcat|sprintf\\\").argument.l\", \"sinks.reachableByFlows(sources).l\"]\n}\n```"
-  },
-  {
-    "instruction": "Write a Joern CPG query to detect Buffer Overflow.",
-    "input": "#include <cstring>\n\nclass ColdStorageInventoryValidator {\npublic:\n    bool ValidateItemName(const char* itemName) {\n        char buffer[50];\n        strcpy(buffer, itemName);\n        if (strlen(buffer) > 30 && !isalpha(itemName[0])) {\n            return false;\n        }\n        return true;\n    }\nprivate:\n    bool isalpha(char c) {\n        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');\n    }\n}",
-    "output": "```json\n{\n  \"queries\": [\"val sources = cpg.call.name(\\\"strcpy\\\").argument.l\", \"val sinks = cpg.call.name(\\\"strcpy\\\").argument.l\", \"sinks.reachableByFlows(sources).l\"]\n}\n```"
+    "input": "#include <cstring>\n#include <iostream>\n\nclass CasinoBetProcessor {\npublic:\n    void fsoweosxrj(const char* dzmtiraj) {\n        char deqqjddd[20];\n        strcpy(deqqjddd, dzmtiraj); \n        std::cout << \"Processed bet: _tmp\" << deqqjddd << std::endl;\n    }\n}",
+    "output": "```json\n{\n  \"queries\": [\"cpg.call.name(\\\"strcpy|strcat|sprintf\\\").where(_.argument(1).isIdentifier.refsTo.collectAll[Local].typeFullName(\\\".*\\\\\\\\[.*\\\\\\\\]\\\")).where(_.argument(2).reachableBy(cpg.parameter)).l\"]\n}\n```"
   },
   {
     "instruction": "Write a Joern CPG query to detect Buffer Overflow.",
     "input": "#include <cstring>\n#include <iostream>\n\nclass SatelliteDataProcessor {\npublic:\n    void processReceivedData(const char* data) {\n        char buffer[1024];\n        std::strcpy(buffer, data);\n        std::cout << \"Processed Data: \" << buffer << std::endl;\n    }\n}",
     "output": "```json\n{\n  \"queries\": [\"cpg.call.name(\\\"strcpy|strcat|sprintf\\\").where(_.argument(1).isIdentifier.refsTo.collectAll[Local].typeFullName(\\\".*\\\\\\\\[.*\\\\\\\\]\\\")).where(_.argument(2).reachableBy(cpg.parameter)).l\"]\n}\n```"
-  },
-  {
-    "instruction": "Write a Joern CPG query to detect Buffer Overflow.",
-    "input": "#include <cstring>\n\nclass MarketSimulationEngine {\npublic:\n    void SetTradeData(const char* tradeInfo) {\n        if (tradeInfo != nullptr && std::strlen(tradeInfo) < sizeof(priceData)) {\n            strcpy(priceData, tradeInfo); \n        }\n    }\nprivate:\n    char priceData[10];\n}",
-    "output": "```json\n{\n  \"queries\": [\"val sources = cpg.call.name(\\\"strcpy\\\").argument.l\", \"val sinks = cpg.call.name(\\\"strcpy\\\").argument.l\", \"sinks.reachableByFlows(sources).l\"]\n}\n```"
-  },
-  {
-    "instruction": "Write a Joern CPG query to detect Buffer Overflow.",
-    "input": "#include <cstring>\n#include <iostream>\n\nclass SMSAnalyzer {\nprivate:\n    char smsBuffer[100];\npublic:\n    void receiveSMS(const char* message) {\n        std::strcpy(smsBuffer, message); \n    }\n    void displaySMS() {\n        std::cout << \"Received SMS: \" << smsBuffer << std::endl;\n    }\n}",
-    "output": "```json\n{\n  \"queries\": [\"val sources = cpg.call.name(\\\"strcpy\\\").argument.l\", \"val sinks = cpg.call.name(\\\"strcpy\\\").argument.l\", \"sinks.reachableByFlows(sources).l\"]\n}\n```"
-  },
-  {
-    "instruction": "Write a Joern CPG query to detect Buffer Overflow.",
-    "input": "#include <cstddef>\n#include <cstdio>\n#include <cstring>\n#include <iostream>\n#include <string>\n\nclass LegalDocumentAnalyzer {\nprivate:\n    char buffer[1024];\npublic:\n    void loadDocument(const std::string& filePath) {\n        FILE* file = fopen(filePath.c_str(), \"rb\");\n        if (file == nullptr) {\n            std::cerr << \"Failed to open file: \" << filePath << std::endl;\n            return;\n        }\n        size_t bytesRead = fread(buffer, 1, sizeof(buffer), file);\n        fclose(file);\n        if (bytesRead == 0) {\n            std::cerr << \"No data read from file.\" << std::endl;\n            return;\n        }\n        strcpy(buffer, \"Legal analysis report generated from input file.\");\n    }\n    void displayReport() {\n        std::cout << buffer << std::endl;\n    }\n}",
-    "output": "```json\n{\n  \"queries\": [\"val sources = cpg.call.name(\\\"fopen|fgets|recv|getenv\\\").argument.l\", \"val sinks = cpg.call.name(\\\"strcpy|sprintf|strcat\\\").argument.l\", \"sinks.reachableByFlows(sources).l\"]\n}\n```"
   }
 ]

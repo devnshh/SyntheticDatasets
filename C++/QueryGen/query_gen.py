@@ -904,14 +904,10 @@ def process_item_with_counters(args: Tuple[int, Dict, int]) -> Tuple[int, Option
             if not queries:
                 logger.warning(f"[{idx+1}/{total}] Retry {attempt}/{MAX_RETRIES}: Could not parse queries")
                 if attempt < MAX_RETRIES:
-                    if attempt >= 3:
-                        queries = get_fallback_query(vulnerability, is_vulnerable, code)
-                        logger.info(f"[{idx+1}/{total}] Using fallback query")
-                    else:
-                        current_response_text = call_model(build_retry_prompt(
-                            current_response_text, "invalid_format", code, vulnerability, is_vulnerable, attempt
-                        ))
-                        continue
+                    current_response_text = call_model(build_retry_prompt(
+                        current_response_text, "invalid_format", code, vulnerability, is_vulnerable, attempt
+                    ))
+                    continue
                 else:
                     continue
             
@@ -925,13 +921,10 @@ def process_item_with_counters(args: Tuple[int, Dict, int]) -> Tuple[int, Option
             
             if not all_valid:
                 if attempt < MAX_RETRIES:
-                    if attempt >= 3:
-                        queries = get_fallback_query(vulnerability, is_vulnerable, code)
-                    else:
-                        current_response_text = call_model(build_retry_prompt(
-                            current_response_text, "execution_failed", code, vulnerability, is_vulnerable, attempt
-                        ))
-                        continue
+                    current_response_text = call_model(build_retry_prompt(
+                        current_response_text, "execution_failed", code, vulnerability, is_vulnerable, attempt
+                    ))
+                    continue
                 else:
                     continue
             
@@ -940,12 +933,9 @@ def process_item_with_counters(args: Tuple[int, Dict, int]) -> Tuple[int, Option
             if result is None:
                 logger.warning(f"[{idx+1}/{total}] Retry {attempt}/{MAX_RETRIES}: Execution failed")
                 if attempt < MAX_RETRIES:
-                    if attempt >= 4:
-                        queries = get_fallback_query(vulnerability, is_vulnerable, code)
-                    else:
-                        current_response_text = call_model(build_retry_prompt(
-                            current_response_text, "execution_failed", code, vulnerability, is_vulnerable, attempt
-                        ))
+                    current_response_text = call_model(build_retry_prompt(
+                        current_response_text, "execution_failed", code, vulnerability, is_vulnerable, attempt
+                    ))
                 continue
             
             try:
@@ -985,8 +975,40 @@ def process_item_with_counters(args: Tuple[int, Dict, int]) -> Tuple[int, Option
                     ))
                 continue
         
+        
         if result_queries is None:
-            logger.error(f"[{idx+1}/{total}] ✗ FAILED after {MAX_RETRIES} attempts")
+            # SAFETY NET: Last resort fallback strategy
+            logger.info(f"[{idx+1}/{total}] LLM failed. Attempting fallback strategy...")
+            
+            # Get smart fallback
+            queries = get_fallback_query(vulnerability, is_vulnerable, code)
+            
+            # Execute fallback
+            result = run_joern_script(code, queries, workspace)
+            
+            if result:
+                try:
+                    data = json.loads(result)
+                    if not isinstance(data, list):
+                        data = [data]
+                    is_empty = len(data) == 0
+                    
+                    # Verify fallback validity
+                    if is_vulnerable and not is_empty:
+                        logger.info(f"[{idx+1}/{total}] Fallback strategy SUCCESS (True Positive)")
+                        result_queries = queries
+                    elif not is_vulnerable and is_empty:
+                        logger.info(f"[{idx+1}/{total}] Fallback strategy SUCCESS (True Negative)")
+                        result_queries = queries
+                    else:
+                        logger.warning(f"[{idx+1}/{total}] Fallback strategy failed verification (Vuln={is_vulnerable}, Empty={is_empty})")
+                except json.JSONDecodeError:
+                    logger.warning(f"[{idx+1}/{total}] Fallback result invalid JSON")
+            else:
+                 logger.warning(f"[{idx+1}/{total}] Fallback execution failed")
+
+        if result_queries is None:
+            logger.error(f"[{idx+1}/{total}] ✗ FAILED after {MAX_RETRIES} attempts + fallback")
         else:
             if _shared_counters is not None:
                 increment_counter(vulnerability, is_vulnerable, _shared_counters)

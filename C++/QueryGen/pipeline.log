@@ -26815,3 +26815,224 @@ try {
 ---------------------------------------------
 2026-02-05 19:05:14,665 - WARNING - [35/1994] Retry 5/5: Execution failed
 2026-02-05 19:05:14,666 - ERROR - [35/1994] ✗ FAILED after 5 attempts
+2026-02-05 20:09:17,981 - INFO - Loaded 1990 items. Using LM Studio with model: qwen/qwen2.5-coder-14b
+2026-02-05 20:09:17,981 - INFO - Processing with 1 parallel workers...
+2026-02-05 20:09:18,059 - INFO - [1/1990] Processing: Buffer Overflow... (VUL)
+2026-02-05 20:10:09,030 - WARNING - [1/1990] Retry 1/3: False negative
+2026-02-05 20:10:14,087 - WARNING - [1/1990] Retry 2/3: Could not parse queries
+2026-02-05 20:10:21,481 - WARNING - [1/1990] Retry 3/3: False negative
+2026-02-05 20:10:21,481 - INFO - [1/1990] LLM failed. Attempting fallback strategy...
+2026-02-05 20:10:21,482 - INFO - FALLBACK DEBUG: sources=['parameter'], pattern=parameter, brackets=True
+2026-02-05 20:10:21,482 - INFO - FALLBACK: Selected Template 0 (Security Grade)
+2026-02-05 20:10:25,022 - INFO - [1/1990] Fallback strategy SUCCESS (True Positive)
+2026-02-05 20:10:25,025 - INFO - [1/1990] ✓ SUCCESS | VUL:7 BEN:6 (53.8%)
+2026-02-05 20:10:25,027 - INFO - [2/1990] Processing: Buffer Overflow... (VUL)
+2026-02-05 20:10:34,658 - WARNING - [2/1990] Retry 1/3: False negative
+2026-02-05 20:10:39,797 - WARNING - [2/1990] Retry 2/3: Could not parse queries
+2026-02-05 20:10:47,284 - WARNING - [2/1990] Retry 3/3: False negative
+2026-02-05 20:10:47,284 - INFO - [2/1990] LLM failed. Attempting fallback strategy...
+2026-02-05 20:10:47,284 - INFO - FALLBACK DEBUG: sources=['parameter'], pattern=parameter, brackets=True
+2026-02-05 20:10:47,284 - INFO - FALLBACK: Selected Template 0 (Security Grade)
+2026-02-05 20:10:50,736 - WARNING - [2/1990] Fallback strategy failed verification (Vuln=True, Empty=True)
+2026-02-05 20:10:50,736 - ERROR - [2/1990] ✗ FAILED after 3 attempts + fallback
+2026-02-05 20:10:50,739 - INFO - [3/1990] Processing: Buffer Overflow... (VUL)
+2026-02-05 20:11:00,380 - WARNING - [3/1990] Retry 1/3: False negative
+2026-02-05 20:11:08,041 - WARNING - [3/1990] Retry 2/3: False negative
+2026-02-05 20:11:16,427 - WARNING - [3/1990] Retry 3/3: Execution failed
+2026-02-05 20:11:16,427 - INFO - [3/1990] LLM failed. Attempting fallback strategy...
+2026-02-05 20:11:16,428 - INFO - FALLBACK DEBUG: sources=['parameter'], pattern=parameter, brackets=True
+2026-02-05 20:11:16,428 - INFO - FALLBACK: Selected Template 0 (Security Grade)
+2026-02-05 20:11:20,300 - WARNING - [3/1990] Fallback strategy failed verification (Vuln=True, Empty=True)
+2026-02-05 20:11:20,301 - ERROR - [3/1990] ✗ FAILED after 3 attempts + fallback
+2026-02-05 20:11:20,304 - INFO - [4/1990] Processing: Buffer Overflow... (VUL)
+2026-02-05 20:11:30,392 - WARNING - [4/1990] Retry 1/3: False negative
+2026-02-05 20:11:38,937 - WARNING - [4/1990] Retry 2/3: False negative
+2026-02-05 20:11:46,504 - WARNING - [4/1990] Retry 3/3: False negative
+2026-02-05 20:11:46,504 - INFO - [4/1990] LLM failed. Attempting fallback strategy...
+2026-02-05 20:11:46,504 - INFO - FALLBACK DEBUG: sources=['parameter'], pattern=parameter, brackets=True
+2026-02-05 20:11:46,504 - INFO - FALLBACK: Selected Template 0 (Security Grade)
+2026-02-05 20:11:58,853 - INFO - Loaded 2000 items. Using LM Studio with model: qwen/qwen2.5-coder-14b
+2026-02-05 20:11:58,853 - INFO - Processing with 1 parallel workers...
+2026-02-05 20:11:58,939 - INFO - [1/2000] Processing: Buffer Overflow... (VUL)
+2026-02-05 20:12:08,886 - WARNING - [1/2000] Retry 1/3: False negative
+2026-02-05 20:12:16,692 - WARNING - [1/2000] Retry 2/3: False negative
+2026-02-05 20:12:23,880 - WARNING - [1/2000] Retry 3/3: Execution failed
+2026-02-05 20:12:23,880 - INFO - [1/2000] LLM failed. Attempting fallback strategy...
+2026-02-05 20:12:23,880 - INFO - FALLBACK DEBUG: sources=['parameter'], pattern=parameter, brackets=True
+2026-02-05 20:12:23,880 - INFO - FALLBACK: Selected Template 0 (Security Grade)
+2026-02-05 20:12:27,548 - INFO - [1/2000] Fallback strategy SUCCESS (True Positive)
+2026-02-05 20:12:27,550 - INFO - [1/2000] ✓ SUCCESS | VUL:1 BEN:0 (100.0%)
+2026-02-05 20:12:27,552 - INFO - [2/2000] Processing: Buffer Overflow... (VUL)
+2026-02-05 20:12:37,526 - WARNING - [2/2000] Retry 1/3: False negative
+2026-02-05 20:12:45,590 - WARNING - [2/2000] Retry 2/3: False negative
+2026-02-05 20:12:53,374 - WARNING - [2/2000] Retry 3/3: False negative
+2026-02-05 20:12:53,374 - INFO - [2/2000] LLM failed. Attempting fallback strategy...
+2026-02-05 20:12:53,374 - INFO - FALLBACK DEBUG: sources=['parameter'], pattern=parameter, brackets=True
+2026-02-05 20:12:53,374 - INFO - FALLBACK: Selected Template 0 (Security Grade)
+2026-02-05 20:12:57,026 - WARNING - [2/2000] Fallback strategy failed verification (Vuln=True, Empty=True)
+2026-02-05 20:12:57,026 - ERROR - [2/2000] ✗ FAILED after 3 attempts + fallback
+2026-02-05 20:12:57,028 - INFO - [3/2000] Processing: Buffer Overflow... (VUL)
+2026-02-05 20:13:06,577 - WARNING - [3/2000] Retry 1/3: False negative
+2026-02-05 20:13:11,634 - WARNING - [3/2000] Retry 2/3: Could not parse queries
+2026-02-05 20:13:18,840 - WARNING - [3/2000] Retry 3/3: False negative
+2026-02-05 20:13:18,841 - INFO - [3/2000] LLM failed. Attempting fallback strategy...
+2026-02-05 20:13:18,841 - INFO - FALLBACK DEBUG: sources=['parameter'], pattern=parameter, brackets=True
+2026-02-05 20:13:18,841 - INFO - FALLBACK: Selected Template 0 (Security Grade)
+2026-02-05 20:13:22,410 - WARNING - [3/2000] Fallback strategy failed verification (Vuln=True, Empty=True)
+2026-02-05 20:13:22,410 - ERROR - [3/2000] ✗ FAILED after 3 attempts + fallback
+2026-02-05 20:13:22,412 - INFO - [4/2000] Processing: Buffer Overflow... (VUL)
+2026-02-05 20:13:32,184 - WARNING - [4/2000] Retry 1/3: False negative
+2026-02-05 20:13:37,322 - WARNING - [4/2000] Retry 2/3: Could not parse queries
+2026-02-05 20:13:45,502 - WARNING - [4/2000] Retry 3/3: False negative
+2026-02-05 20:13:45,503 - INFO - [4/2000] LLM failed. Attempting fallback strategy...
+2026-02-05 20:13:45,503 - INFO - FALLBACK DEBUG: sources=['parameter'], pattern=parameter, brackets=True
+2026-02-05 20:13:45,503 - INFO - FALLBACK: Selected Template 0 (Security Grade)
+2026-02-05 20:13:49,161 - WARNING - [4/2000] Fallback strategy failed verification (Vuln=True, Empty=True)
+2026-02-05 20:13:49,162 - ERROR - [4/2000] ✗ FAILED after 3 attempts + fallback
+2026-02-05 20:13:49,164 - INFO - [5/2000] Processing: Buffer Overflow... (VUL)
+2026-02-05 20:13:58,625 - WARNING - [5/2000] Retry 1/3: False negative
+2026-02-05 20:14:03,601 - WARNING - [5/2000] Retry 2/3: Could not parse queries
+2026-02-05 20:14:11,215 - WARNING - [5/2000] Retry 3/3: False negative
+2026-02-05 20:14:11,215 - INFO - [5/2000] LLM failed. Attempting fallback strategy...
+2026-02-05 20:14:11,215 - INFO - FALLBACK DEBUG: sources=['parameter'], pattern=parameter, brackets=True
+2026-02-05 20:14:11,215 - INFO - FALLBACK: Selected Template 0 (Security Grade)
+2026-02-05 20:14:14,836 - WARNING - [5/2000] Fallback strategy failed verification (Vuln=True, Empty=True)
+2026-02-05 20:14:14,836 - ERROR - [5/2000] ✗ FAILED after 3 attempts + fallback
+2026-02-05 20:14:14,838 - INFO - [6/2000] Processing: Buffer Overflow... (VUL)
+2026-02-05 20:14:24,634 - WARNING - [6/2000] Retry 1/3: False negative
+2026-02-05 20:14:30,012 - WARNING - [6/2000] Retry 2/3: Could not parse queries
+2026-02-05 20:14:37,445 - WARNING - [6/2000] Retry 3/3: False negative
+2026-02-05 20:14:37,445 - INFO - [6/2000] LLM failed. Attempting fallback strategy...
+2026-02-05 20:14:37,445 - INFO - FALLBACK DEBUG: sources=['parameter'], pattern=parameter, brackets=True
+2026-02-05 20:14:37,445 - INFO - FALLBACK: Selected Template 0 (Security Grade)
+2026-02-05 20:14:41,766 - INFO - [6/2000] Fallback strategy SUCCESS (True Positive)
+2026-02-05 20:14:41,768 - INFO - [6/2000] ✓ SUCCESS | VUL:2 BEN:0 (100.0%)
+2026-02-05 20:14:41,769 - INFO - [7/2000] Processing: Buffer Overflow... (VUL)
+2026-02-05 20:14:51,896 - WARNING - [7/2000] Retry 1/3: False negative
+2026-02-05 20:14:59,774 - WARNING - [7/2000] Retry 2/3: False negative
+2026-02-05 20:15:03,745 - WARNING - No traversal found in queries
+2026-02-05 20:15:03,745 - WARNING - [7/2000] Retry 3/3: Execution failed
+2026-02-05 20:15:03,745 - INFO - [7/2000] LLM failed. Attempting fallback strategy...
+2026-02-05 20:15:03,746 - INFO - FALLBACK DEBUG: sources=['parameter'], pattern=parameter, brackets=True
+2026-02-05 20:15:03,746 - INFO - FALLBACK: Selected Template 0 (Security Grade)
+2026-02-05 20:15:07,780 - WARNING - [7/2000] Fallback strategy failed verification (Vuln=True, Empty=True)
+2026-02-05 20:15:07,780 - ERROR - [7/2000] ✗ FAILED after 3 attempts + fallback
+2026-02-05 20:15:07,783 - INFO - [8/2000] Processing: Buffer Overflow... (VUL)
+2026-02-05 20:15:18,276 - WARNING - [8/2000] Retry 1/3: False negative
+2026-02-05 20:15:26,291 - INFO - [8/2000] ✓ SUCCESS | VUL:3 BEN:0 (100.0%)
+2026-02-05 20:15:26,293 - INFO - [9/2000] Processing: Buffer Overflow... (VUL)
+2026-02-05 20:15:33,873 - WARNING - [9/2000] Retry 1/3: Could not parse queries
+2026-02-05 20:15:41,367 - WARNING - [9/2000] Retry 2/3: False negative
+2026-02-05 20:15:49,102 - WARNING - [9/2000] Retry 3/3: False negative
+2026-02-05 20:15:49,102 - INFO - [9/2000] LLM failed. Attempting fallback strategy...
+2026-02-05 20:15:49,102 - INFO - FALLBACK DEBUG: sources=['parameter'], pattern=parameter, brackets=True
+2026-02-05 20:15:49,102 - INFO - FALLBACK: Selected Template 0 (Security Grade)
+2026-02-05 20:15:52,782 - INFO - [9/2000] Fallback strategy SUCCESS (True Positive)
+2026-02-05 20:15:52,786 - INFO - [9/2000] ✓ SUCCESS | VUL:4 BEN:0 (100.0%)
+2026-02-05 20:15:52,788 - INFO - [10/2000] Processing: Buffer Overflow... (VUL)
+2026-02-05 20:16:03,204 - WARNING - [10/2000] Retry 1/3: False negative
+2026-02-05 20:16:11,040 - WARNING - [10/2000] Retry 2/3: False negative
+2026-02-05 20:16:18,605 - WARNING - [10/2000] Retry 3/3: False negative
+2026-02-05 20:16:18,605 - INFO - [10/2000] LLM failed. Attempting fallback strategy...
+2026-02-05 20:16:18,605 - INFO - FALLBACK DEBUG: sources=['parameter'], pattern=parameter, brackets=True
+2026-02-05 20:16:18,605 - INFO - FALLBACK: Selected Template 0 (Security Grade)
+2026-02-05 20:16:22,124 - WARNING - [10/2000] Fallback strategy failed verification (Vuln=True, Empty=True)
+2026-02-05 20:16:22,124 - ERROR - [10/2000] ✗ FAILED after 3 attempts + fallback
+2026-02-05 20:16:22,127 - INFO - [11/2000] Processing: Buffer Overflow... (VUL)
+2026-02-05 20:16:27,818 - WARNING - No traversal found in queries
+2026-02-05 20:16:27,818 - WARNING - [11/2000] Retry 1/3: Execution failed
+2026-02-05 20:16:36,224 - WARNING - [11/2000] Retry 2/3: Execution failed
+2026-02-05 20:16:45,144 - WARNING - [11/2000] Retry 3/3: False negative
+2026-02-05 20:16:45,145 - INFO - [11/2000] LLM failed. Attempting fallback strategy...
+2026-02-05 20:16:45,145 - INFO - FALLBACK DEBUG: sources=['parameter'], pattern=parameter, brackets=True
+2026-02-05 20:16:45,145 - INFO - FALLBACK: Selected Template 0 (Security Grade)
+2026-02-05 20:16:49,129 - INFO - [11/2000] Fallback strategy SUCCESS (True Positive)
+2026-02-05 20:16:49,132 - INFO - [11/2000] ✓ SUCCESS | VUL:5 BEN:0 (100.0%)
+2026-02-05 20:16:49,134 - INFO - [12/2000] Processing: Buffer Overflow... (VUL)
+2026-02-05 20:16:58,969 - WARNING - [12/2000] Retry 1/3: False negative
+2026-02-05 20:17:04,252 - WARNING - [12/2000] Retry 2/3: Could not parse queries
+2026-02-05 20:17:11,604 - WARNING - [12/2000] Retry 3/3: False negative
+2026-02-05 20:17:11,605 - INFO - [12/2000] LLM failed. Attempting fallback strategy...
+2026-02-05 20:17:11,605 - INFO - FALLBACK DEBUG: sources=['parameter'], pattern=parameter, brackets=True
+2026-02-05 20:17:11,605 - INFO - FALLBACK: Selected Template 0 (Security Grade)
+2026-02-05 20:17:15,686 - WARNING - [12/2000] Fallback strategy failed verification (Vuln=True, Empty=True)
+2026-02-05 20:17:15,686 - ERROR - [12/2000] ✗ FAILED after 3 attempts + fallback
+2026-02-05 20:17:15,689 - INFO - [13/2000] Processing: Buffer Overflow... (VUL)
+2026-02-05 20:17:26,034 - WARNING - [13/2000] Retry 1/3: False negative
+2026-02-05 20:17:33,770 - WARNING - [13/2000] Retry 2/3: False negative
+2026-02-05 20:17:41,488 - WARNING - [13/2000] Retry 3/3: False negative
+2026-02-05 20:17:41,488 - INFO - [13/2000] LLM failed. Attempting fallback strategy...
+2026-02-05 20:17:41,489 - INFO - FALLBACK DEBUG: sources=['parameter'], pattern=parameter, brackets=True
+2026-02-05 20:17:41,489 - INFO - FALLBACK: Selected Template 0 (Security Grade)
+2026-02-05 20:17:45,629 - WARNING - [13/2000] Fallback strategy failed verification (Vuln=True, Empty=True)
+2026-02-05 20:17:45,630 - ERROR - [13/2000] ✗ FAILED after 3 attempts + fallback
+2026-02-05 20:17:45,633 - INFO - [14/2000] Processing: Buffer Overflow... (VUL)
+2026-02-05 20:17:56,963 - WARNING - [14/2000] Retry 1/3: False negative
+2026-02-05 20:18:01,895 - WARNING - [14/2000] Retry 2/3: Could not parse queries
+2026-02-05 20:18:09,234 - WARNING - [14/2000] Retry 3/3: False negative
+2026-02-05 20:18:09,235 - INFO - [14/2000] LLM failed. Attempting fallback strategy...
+2026-02-05 20:18:09,235 - INFO - FALLBACK DEBUG: sources=['parameter'], pattern=parameter, brackets=True
+2026-02-05 20:18:09,235 - INFO - FALLBACK: Selected Template 0 (Security Grade)
+2026-02-05 20:18:13,446 - INFO - [14/2000] Fallback strategy SUCCESS (True Positive)
+2026-02-05 20:18:13,452 - INFO - [14/2000] ✓ SUCCESS | VUL:6 BEN:0 (100.0%)
+2026-02-05 20:18:13,454 - INFO - [15/2000] Processing: Buffer Overflow... (VUL)
+2026-02-05 20:18:19,084 - WARNING - [15/2000] Retry 1/3: Could not parse queries
+2026-02-05 20:18:26,710 - WARNING - [15/2000] Retry 2/3: False negative
+2026-02-05 20:18:34,603 - WARNING - [15/2000] Retry 3/3: False negative
+2026-02-05 20:18:34,603 - INFO - [15/2000] LLM failed. Attempting fallback strategy...
+2026-02-05 20:18:34,603 - INFO - FALLBACK DEBUG: sources=['parameter'], pattern=parameter, brackets=True
+2026-02-05 20:18:34,603 - INFO - FALLBACK: Selected Template 0 (Security Grade)
+2026-02-05 20:18:38,323 - WARNING - [15/2000] Fallback strategy failed verification (Vuln=True, Empty=True)
+2026-02-05 20:18:38,323 - ERROR - [15/2000] ✗ FAILED after 3 attempts + fallback
+2026-02-05 20:18:38,326 - INFO - [16/2000] Processing: Buffer Overflow... (VUL)
+2026-02-05 20:18:46,508 - WARNING - [16/2000] Retry 1/3: Could not parse queries
+2026-02-05 20:18:53,157 - WARNING - [16/2000] Retry 2/3: Execution failed
+2026-02-05 20:19:01,110 - WARNING - Joern error: invalid regular expression: `delete[]`
+2026-02-05 20:19:01,111 - WARNING - [16/2000] Retry 3/3: Execution failed
+2026-02-05 20:19:01,111 - INFO - [16/2000] LLM failed. Attempting fallback strategy...
+2026-02-05 20:19:01,111 - INFO - FALLBACK DEBUG: sources=['parameter'], pattern=parameter, brackets=True
+2026-02-05 20:19:01,111 - INFO - FALLBACK: Selected Template 0 (Security Grade)
+2026-02-05 20:19:04,796 - WARNING - [16/2000] Fallback strategy failed verification (Vuln=True, Empty=True)
+2026-02-05 20:19:04,796 - ERROR - [16/2000] ✗ FAILED after 3 attempts + fallback
+2026-02-05 20:19:04,799 - INFO - [17/2000] Processing: Buffer Overflow... (VUL)
+2026-02-05 20:19:14,924 - WARNING - [17/2000] Retry 1/3: False negative
+2026-02-05 20:19:20,002 - WARNING - [17/2000] Retry 2/3: Could not parse queries
+2026-02-05 20:19:22,465 - WARNING - [17/2000] Retry 3/3: Could not parse queries
+2026-02-05 20:19:22,466 - INFO - [17/2000] LLM failed. Attempting fallback strategy...
+2026-02-05 20:19:22,466 - INFO - FALLBACK DEBUG: sources=['parameter'], pattern=parameter, brackets=True
+2026-02-05 20:19:22,466 - INFO - FALLBACK: Selected Template 0 (Security Grade)
+2026-02-05 20:19:26,111 - WARNING - [17/2000] Fallback strategy failed verification (Vuln=True, Empty=True)
+2026-02-05 20:19:26,111 - ERROR - [17/2000] ✗ FAILED after 3 attempts + fallback
+2026-02-05 20:19:26,114 - INFO - [18/2000] Processing: Buffer Overflow... (VUL)
+2026-02-05 20:19:35,759 - WARNING - [18/2000] Retry 1/3: False negative
+2026-02-05 20:19:42,084 - WARNING - [18/2000] Retry 2/3: Execution failed
+2026-02-05 20:19:50,046 - WARNING - [18/2000] Retry 3/3: False negative
+2026-02-05 20:19:50,047 - INFO - [18/2000] LLM failed. Attempting fallback strategy...
+2026-02-05 20:19:50,047 - INFO - FALLBACK DEBUG: sources=['parameter'], pattern=parameter, brackets=True
+2026-02-05 20:19:50,047 - INFO - FALLBACK: Selected Template 0 (Security Grade)
+2026-02-05 20:19:54,182 - WARNING - [18/2000] Fallback strategy failed verification (Vuln=True, Empty=True)
+2026-02-05 20:19:54,183 - ERROR - [18/2000] ✗ FAILED after 3 attempts + fallback
+2026-02-05 20:19:54,188 - INFO - [19/2000] Processing: Buffer Overflow... (VUL)
+2026-02-05 20:20:03,813 - WARNING - [19/2000] Retry 1/3: False negative
+2026-02-05 20:20:11,389 - WARNING - [19/2000] Retry 2/3: False negative
+2026-02-05 20:20:19,192 - WARNING - [19/2000] Retry 3/3: False negative
+2026-02-05 20:20:19,192 - INFO - [19/2000] LLM failed. Attempting fallback strategy...
+2026-02-05 20:20:19,193 - INFO - FALLBACK DEBUG: sources=['parameter'], pattern=parameter, brackets=False
+2026-02-05 20:20:22,723 - WARNING - [19/2000] Fallback strategy failed verification (Vuln=True, Empty=True)
+2026-02-05 20:20:22,723 - ERROR - [19/2000] ✗ FAILED after 3 attempts + fallback
+2026-02-05 20:20:22,726 - INFO - [20/2000] Processing: Buffer Overflow... (VUL)
+2026-02-05 20:20:28,332 - WARNING - [20/2000] Retry 1/3: Could not parse queries
+2026-02-05 20:20:35,695 - WARNING - [20/2000] Retry 2/3: False negative
+2026-02-05 20:20:40,698 - WARNING - [20/2000] Retry 3/3: Could not parse queries
+2026-02-05 20:20:40,699 - INFO - [20/2000] LLM failed. Attempting fallback strategy...
+2026-02-05 20:20:40,699 - INFO - FALLBACK DEBUG: sources=['parameter'], pattern=parameter, brackets=True
+2026-02-05 20:20:40,699 - INFO - FALLBACK: Selected Template 0 (Security Grade)
+2026-02-05 20:20:44,497 - WARNING - [20/2000] Fallback strategy failed verification (Vuln=True, Empty=True)
+2026-02-05 20:20:44,497 - ERROR - [20/2000] ✗ FAILED after 3 attempts + fallback
+2026-02-05 20:20:44,500 - INFO - [21/2000] Processing: Buffer Overflow... (VUL)
+2026-02-05 20:20:54,919 - WARNING - [21/2000] Retry 1/3: False negative
+2026-02-05 20:21:03,978 - WARNING - [21/2000] Retry 2/3: False negative
+2026-02-05 20:21:12,795 - WARNING - [21/2000] Retry 3/3: False negative
+2026-02-05 20:21:12,796 - INFO - [21/2000] LLM failed. Attempting fallback strategy...
+2026-02-05 20:21:12,796 - INFO - FALLBACK DEBUG: sources=['parameter'], pattern=parameter, brackets=True
+2026-02-05 20:21:12,796 - INFO - FALLBACK: Selected Template 0 (Security Grade)
